@@ -1,6 +1,8 @@
 #ifndef TINYGL_H
 #define TINYGL_H
 
+#include "im.h"
+#include <glfw/glfw3.h>
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -49,69 +51,84 @@ std::string valtostr(const T& val, int length, bool fixed = true)
     return sstream.str();
 }
 
+struct ColorRGB8bit;
+
 struct ColorRGB
 {
-    uint8 r{0};
-    uint8 g{0};
-    uint8 b{0};
+  int r;
+  int g;
+  int b;
 
-    constexpr ColorRGB() = default;
-    constexpr ColorRGB(uint8 r, uint8 g, uint8 b) 
-        : r(r), g(g), b(b) {}
-
-    constexpr ColorRGB(uint32 hex)
-        : r(static_cast<uint8>((hex >> 16) & 0xFF)),
-          g(static_cast<uint8>((hex >> 8) & 0xFF)),
-          b(static_cast<uint8>(hex & 0xFF)) {}
+  ColorRGB(uint8 r, uint8 g, uint8 b);
+  ColorRGB(const ColorRGB8bit& color);
+  ColorRGB();
 };
 
-constexpr ColorRGB operator+(const ColorRGB& c1, const ColorRGB& c2) {
-    return ColorRGB(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b);
-}
+ColorRGB operator+(const ColorRGB& color, const ColorRGB& color2);
+ColorRGB operator-(const ColorRGB& color, const ColorRGB& color2);
+ColorRGB operator*(const ColorRGB& color, int a);
+ColorRGB operator*(int a, const ColorRGB& color);
+ColorRGB operator/(const ColorRGB& color, int a);
+bool operator==(const ColorRGB& color, const ColorRGB& color2);
+bool operator!=(const ColorRGB& color, const ColorRGB& color2);
 
-constexpr ColorRGB operator-(const ColorRGB& c1, const ColorRGB& c2) {
-    return ColorRGB(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b);
-}
+static const ColorRGB RGB_Black    (  0,   0,   0);
+static const ColorRGB RGB_Red      (255,   0,   0);
+static const ColorRGB RGB_Green    (  0, 255,   0);
+static const ColorRGB RGB_Blue     (  0,   0, 255);
+static const ColorRGB RGB_Cyan     (  0, 255, 255);
+static const ColorRGB RGB_Magenta  (255,   0, 255);
+static const ColorRGB RGB_Yellow   (255, 255,   0);
+static const ColorRGB RGB_White    (255, 255, 255);
+static const ColorRGB RGB_Gray     (128, 128, 128);
+static const ColorRGB RGB_Grey     (192, 192, 192);
+static const ColorRGB RGB_Maroon   (128,   0,   0);
+static const ColorRGB RGB_Darkgreen(  0, 128,   0);
+static const ColorRGB RGB_Navy     (  0,   0, 128);
+static const ColorRGB RGB_Teal     (  0, 128, 128);
+static const ColorRGB RGB_Purple   (128,   0, 128);
+static const ColorRGB RGB_Olive    (128, 128,   0);
 
-constexpr ColorRGB operator*(const ColorRGB& c, int a) {
-    return ColorRGB(c.r * a, c.g * a, c.b * a);
-}
-
-constexpr ColorRGB operator*(int a, const ColorRGB& c) {
-    return c * a;
-}
-
-constexpr ColorRGB operator/(const ColorRGB& c, int a) {
-    return ColorRGB(c.r / a, c.g / a, c.b / a);
-}
-
-constexpr bool operator==(const ColorRGB& c1, const ColorRGB& c2) {
-    return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b;
-}
-
-constexpr bool operator!=(const ColorRGB& c1, const ColorRGB& c2) {
-    return !(c1 == c2);
-}
-
-namespace Colors 
+struct ColorRGB8bit
 {
-    inline constexpr ColorRGB Red      (255,   0,   0);
-    inline constexpr ColorRGB Green    (  0, 255,   0);
-    inline constexpr ColorRGB Blue     (  0,   0, 255);
-    inline constexpr ColorRGB Black    (  0,   0,   0);
-    inline constexpr ColorRGB White    (255, 255, 255);
-    inline constexpr ColorRGB Yellow   (255, 255,   0);
-    inline constexpr ColorRGB Cyan     (  0, 255, 255);
-    inline constexpr ColorRGB Magenta  (255,   0, 255);
-    inline constexpr ColorRGB Gray     (128, 128, 128);
+  uint8 r;
+  uint8 g;
+  uint8 b;
 
-    inline constexpr ColorRGB HEX_Red    (0xFF0000);
-    inline constexpr ColorRGB HEX_Green  (0x00FF00);
-    inline constexpr ColorRGB HEX_Blue   (0x0000FF);
-    inline constexpr ColorRGB HEX_Black  (0x000000);
-    inline constexpr ColorRGB HEX_White  (0xFFFFFF);
-    inline constexpr ColorRGB HEX_Yellow (0xFFFF00);
-}
+  ColorRGB8bit(uint8 r, uint8 g, uint8 b);
+  ColorRGB8bit(const ColorRGB& color);
+  ColorRGB8bit();
+};
+
+extern int width;
+extern int height;
+
+bool keyDown(int key);
+bool keyPressed(int key);
+bool keyReleased(int key);
+
+GLFWwindow* createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen = false);
+void windowSizeCallback(GLFWwindow* window, int width, int height);
+void setWindowCallback(GLFWwindow* window);
+void render();
+void clearScreen(const ColorRGB& color = RGB_Black);
+void pset(int x, int y, const ColorRGB& color);
+ColorRGB pget(int x, int y);
+void drawBuffer(uint32* buffer);
+bool onScreen(int x, int y);
+
+void sleep(double milliseconds);
+void waitFrame(double oldTime, double frameDuration);
+bool windowIsOpen(bool running);
+void exit();
+
+void setMouseLocked(bool locked);
+void getMouseDelta(double &dx, double &dy);
+void getMousePosition(int& mouseX, int& mouseY);
+void getMousePosition(int& mouseX, int& mouseY, bool& LMB, bool& RMB);
+
+unsigned long getTicks();
+inline double getTime() { return getTicks() / 1000.0; }
 
 }
 
