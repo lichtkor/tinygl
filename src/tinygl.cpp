@@ -38,9 +38,9 @@ inline uint32 packColor(const ColorRGB& color)
     return (255 << 24) | (color.b << 16) | (color.g << 8) | color.r;
 }
 
-inline ColorRGB unpackColor(uint32 colorInt)
+inline ColorRGB unpackColor(uint32 colorINT)
 {
-    return ColorRGB(colorInt & 0xFF, (colorInt >> 8) & 0xFF, (colorInt >> 16) & 0xFF);
+    return ColorRGB(colorINT & 0xFF, (colorINT >> 8) & 0xFF, (colorINT >> 16) & 0xFF);
 }
 
 bool keyDown(int key)

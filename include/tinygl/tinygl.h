@@ -133,7 +133,13 @@ inline double getTime() { return getTicks() / 1000.0; }
 bool horLine(int y, int x1, int x2, const ColorRGB& color);
 bool verLine(int x, int y1, int y2, const ColorRGB& color);
 bool drawLine(int x1, int y1, int x2, int y2, const ColorRGB& color);
+bool drawCircle(int xc, int yc, int radius, const ColorRGB& color);
+bool drawDisk(int xc, int yc, int radius, const ColorRGB& color);
+bool drawRect(int x1, int y1, int x2, int y2, const ColorRGB& color);
+bool clipLine(int x1, int y1, int x2, int y2, int &x3, int &y3, int &x4, int &y4);
 
+uint32 RGBtoINT(const ColorRGB& color);
+ColorRGB INTtoRGB(uint32 colorINT);
 
 }
 
