@@ -1,7 +1,6 @@
 #ifndef TINYGL_H
 #define TINYGL_H
 
-#include "im.h"
 #include <glfw/glfw3.h>
 #include <iomanip>
 #include <string>
@@ -108,6 +107,7 @@ bool keyPressed(int key);
 bool keyReleased(int key);
 
 GLFWwindow* createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen = false);
+void toggleFullScreen(bool fullscreen);
 void windowSizeCallback(GLFWwindow* window, int width, int height);
 void setWindowCallback(GLFWwindow* window);
 void render();
@@ -129,6 +129,11 @@ void getMousePosition(int& mouseX, int& mouseY, bool& LMB, bool& RMB);
 
 unsigned long getTicks();
 inline double getTime() { return getTicks() / 1000.0; }
+
+bool horLine(int y, int x1, int x2, const ColorRGB& color);
+bool verLine(int x, int y1, int y2, const ColorRGB& color);
+bool drawLine(int x1, int y1, int x2, int y2, const ColorRGB& color);
+
 
 }
 
