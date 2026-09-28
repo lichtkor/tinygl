@@ -106,7 +106,7 @@ bool keyDown(int key);
 bool keyPressed(int key);
 bool keyReleased(int key);
 
-GLFWwindow* createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen = false);
+void createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen = false);
 void toggleFullScreen(bool fullscreen);
 void windowSizeCallback(GLFWwindow* window, int width, int height);
 void setWindowCallback(GLFWwindow* window);

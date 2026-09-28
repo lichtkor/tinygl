@@ -1,5 +1,5 @@
-#include "glad.h"
-#include "tinygl.h"
+#include "../third_party/glad/glad.h"
+#include "../include/tinygl/tinygl.h"
 #include <glfw/glfw3.h>
 #include <iostream>
 #include <chrono>
@@ -71,7 +71,7 @@ bool keyPressed(int key)
     return false;
 }
 
-GLFWwindow* createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen)
+void createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen)
 {
     if (!glfwInit())
     {
