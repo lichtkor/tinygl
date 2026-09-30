@@ -255,4 +255,11 @@ bool verLine(int x, int y1, int y2, const ColorRGB& color)
     return 1;
 }
 
+void getMouseState(int& mouseX, int& mouseY, bool& LMB, bool& RMB)
+{
+    getMouseState(mouseX, mouseY);
+    LMB = window && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    RMB = window && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+}
+
 }
