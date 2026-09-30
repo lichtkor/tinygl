@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <vector>
 #include <cstdint>
 
 namespace TinyGL
@@ -13,6 +14,7 @@ namespace TinyGL
 using uint8 = std::uint8_t;
 using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
+using size = std::size_t;
 
 /*
 I decided to re implement the abs function because
@@ -140,6 +142,40 @@ bool clipLine(int x1, int y1, int x2, int y2, int &x3, int &y3, int &x4, int &y4
 
 uint32 RGBtoINT(const ColorRGB& color);
 ColorRGB INTtoRGB(uint32 colorINT);
+
+int loadImage(std::vector<ColorRGB>& out, unsigned long& w, unsigned long& h, const std::string& filename);
+int loadImage(std::vector<uint32>& out, unsigned long& w, unsigned long& h, const std::string& filename);
+int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size in_size, bool convert_to_rgba32 = true);
+int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const std::vector<unsigned char>& in_png);
+
+extern bool font[256][8][8];
+void drawLetter(unsigned char n, int x, int y, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black);
+int printString(const std::string& text, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black, int forceLength = 0);
+
+template<typename T>
+int print(const T& val, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black, int forceLength = 0)
+{
+    std::string text = valtostr(val);
+    return printString(text, x, y, color, bg, color2, forceLength);
+}
+
+template<typename T>
+int fprint(const T& val, int length, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black, int forceLength = 0)
+{
+    std::string text = valtpstr(val);
+    return printString(text, x, y, color, bg, color2, forceLength);
+}
+
+uint8 getInputCharacter();
+void getInputString(std::string& text, const std::string& message = "", bool clear = false, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black);
+
+template<typename T>
+T getInput(const std::string& message = "", bool clear = false, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black)
+{
+    std::string text;
+    getInputString(text, message, clear, x, y, color, bg, color2);
+    return strtoval<T>(text);
+}
 
 }
 
