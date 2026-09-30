@@ -71,6 +71,50 @@ bool keyPressed(int key)
     return false;
 }
 
+void setMouseLocked(bool locked)
+{
+    if (!window) return;
+    mouseLocked = locked;
+    if (locked)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        if(glfwRawMouseMotionSupported())
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
+    }
+    else
+    {
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
+void getMouseDelta(double& dx, double &dy)
+{
+    dx = 0.0;
+    dy = 0.0;
+    if(!window || !mouseLocked) return;
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    dx = x - lastMouseX;
+    dy = y - lastMouseY;
+    lastMouseX = x;
+    lastMouseY = y;
+}
+
+void getMouseState(int& mouseX, int& mouseY)
+{
+    mouseX = mouseY = 0;
+    if(!window) return;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    mouseX = static_cast<int>(x);
+    mouseY = static_cast<int>(y);
+}
+
+
 void createWindow(int width, int height, std::string& title, GLFWmonitor* monitor, bool fullscreen)
 {
     if (!glfwInit())
@@ -180,5 +224,35 @@ unsigned long getTicks()
     return static_cast<unsigned long>(glfwGetTime() * 1000.0);
 }
 
+bool horLine(int y,  int x1, int x2, const ColorRGB& color)
+{
+    if (x2 < x1) { x1 += x2; x2 = x1 - x2; x1 -= x2; }
+    if(x2 < 0 || x1 >= width || y < 0 || y >= height) return 0; 
+    if(x1 < 0) x1 = 0; 
+    if(x2 >= width) x2 = width - 1;
+
+    uint32 c = packColor(color);
+    int offset = y * width;
+    for(int x = x1; x <= x2; x++)
+    {
+        screenBuffer[offset + x] = c;
+    }
+    return 1;
+}
+
+bool verLine(int x, int y1, int y2, const ColorRGB& color)
+{
+    if(y2 < y1) {y1 += y2; y2 = y1 - y2; y1 -= y2;} 
+    if(y2 < 0 || y1 >= height || x < 0 || x >= width) return 0; 
+    if(y1 < 0) y1 = 0; 
+    if(y2 >= height) y2 = height - 1; 
+
+    uint32 c = packColor(color);
+    for(int y = y1; y <= y2; y++)
+    {
+        screenBuffer[y * width + x] = c;
+    }
+    return 1;
+}
 
 }
