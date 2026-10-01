@@ -5,24 +5,20 @@ project(tinygl VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(EXPORT_COMPILE_COMMANDS ON)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist/lib)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/dist/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/dist/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/dist/lib)
+
+option(BUILD_SHARED_LIBS "Build TinyGL as a shared library" ON)
+
+find_package(glfw3 CONFIG REQUIRED)
 
 add_library(tinygl
-        src/tinygl.cpp
-        third_party/glad/glad.c
-)
-
-option(TINYGL_BUILD_TESTS "Build TinyGL tests" ON)
-
-if(TINYGL_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
-target_include_directories(tinygl
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR/include}
-
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad
+    src/tinygl.cpp
+    third_party/glad/glad.c
 )
