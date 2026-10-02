@@ -4,12 +4,22 @@
 #ifndef GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_NONE
 #endif
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <iomanip>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <cstdint>
+
+#if defined(_WIN32) && defined(TINYGL_SHARED)
+    #ifdef TINYGL_BUILD
+        #define TINYGL_API __declspec(dllexport)
+    #else
+        #define TINYGL_API __declspec(dllimport)
+    #endif
+#else
+    #define TINYGL_API
+#endif
 
 namespace TinyGL
 {
@@ -142,6 +152,7 @@ public:
     ~Shader();
 
     bool load(const std::string& vertexFile, const std::string& fragmentFile);
+    bool loadSource(const std::string& vertexSource, const std::string& fragmentSource);
     void destroy();
     void use() const;
     void setInt(const std::string& name, int value);
@@ -154,8 +165,8 @@ private:
     uint32 program;
 };
 
-extern int width;
-extern int height;
+extern TINYGL_API int width;
+extern TINYGL_API int height;
 
 bool keyDown(int key);
 bool keyPressed(int key);
@@ -205,7 +216,7 @@ int loadImage(std::vector<uint32>& out, unsigned long& w, unsigned long& h, cons
 int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size in_size, bool convert_to_rgba32 = true);
 int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const std::vector<unsigned char>& in_png);
 
-extern bool font[256][8][8];
+extern TINYGL_API bool font[256][8][8];
 void drawLetter(unsigned char n, int x, int y, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black);
 int printString(const std::string& text, int x = 0, int y = 0, const ColorRGB& color = RGB_White, bool bg = false, const ColorRGB& color2 = RGB_Black, int forceLength = 0);
 

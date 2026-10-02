@@ -1,7 +1,7 @@
-#include "../include/glad/glad.h"
+#include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "../include/stb_image.h"
-#include "../include/tinyGL/tinygl.h"
+#include <stb_image.h>
+#include <tinygl/tinygl.h>
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
@@ -211,12 +211,54 @@ void drawTexture()
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
+const char* primitiveVertexSource = R"(#version 330 core
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec4 aColor;
+uniform vec2 uSize;
+out vec4 vColor;
+void main()
+{
+    gl_Position = vec4(aPos.x / uSize.x * 2.0 - 1.0, 1.0 - aPos.y / uSize.y * 2.0, 0.0, 1.0);
+    vColor = aColor;
+}
+)";
+
+const char* primitiveFragmentSource = R"(#version 330 core
+in vec4 vColor;
+out vec4 fragColor;
+void main()
+{
+    fragColor = vColor;
+}
+)";
+
+const char* textureVertexSource = R"(#version 330 core
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aUV;
+out vec2 vUV;
+void main()
+{
+    gl_Position = vec4(aPos, 0.0, 1.0);
+    vUV = vec2(aUV.x, 1.0 - aUV.y);
+}
+)";
+
+const char* textureFragmentSource = R"(#version 330 core
+in vec2 vUV;
+out vec4 fragColor;
+uniform sampler2D uTexture;
+void main()
+{
+    fragColor = vec4(texture(uTexture, vUV).rgb, 1.0);
+}
+)";
+
 void initRenderer()
 {
-    if(!primitiveShader.load("shaders/primitive.vert", "shaders/primitive.frag"))
+    if(!primitiveShader.loadSource(primitiveVertexSource, primitiveFragmentSource))
         return;
 
-    if(!textureShader.load("shaders/texture.vert", "shaders/texture.frag"))
+    if(!textureShader.loadSource(textureVertexSource, textureFragmentSource))
         return;
 
     glGenVertexArrays(1, &primitiveVAO);
@@ -425,80 +467,6 @@ void initializeFont()
     }
 }
 
-}
-
-ColorRGB::ColorRGB(uint8 r_, uint8 g_, uint8 b_)
-    : r(r_), g(g_), b(b_)
-{
-}
-
-ColorRGB::ColorRGB(const ColorRGB8bit& color)
-    : r(color.r), g(color.g), b(color.b)
-{
-}
-
-ColorRGB::ColorRGB()
-    : r(0), g(0), b(0)
-{
-}
-
-ColorRGB operator+(const ColorRGB& color, const ColorRGB& color2)
-{
-    return ColorRGB(uint8(clampColor(color.r + color2.r)), uint8(clampColor(color.g + color2.g)), uint8(clampColor(color.b + color2.b)));
-}
-
-ColorRGB operator-(const ColorRGB& color, const ColorRGB& color2)
-{
-    return ColorRGB(uint8(clampColor(color.r - color2.r)), uint8(clampColor(color.g - color2.g)), uint8(clampColor(color.b - color2.b)));
-}
-
-ColorRGB operator*(const ColorRGB& color, int a)
-{
-    return ColorRGB(uint8(clampColor(color.r * a)), uint8(clampColor(color.g * a)), uint8(clampColor(color.b * a)));
-}
-
-ColorRGB operator*(int a, const ColorRGB& color)
-{
-    return color * a;
-}
-
-ColorRGB operator/(const ColorRGB& color, int a)
-{
-    if(a == 0)
-        return RGB_Black;
-
-    return ColorRGB(uint8(clampColor(color.r / a)), uint8(clampColor(color.g / a)), uint8(clampColor(color.b / a)));
-}
-
-bool operator==(const ColorRGB& color, const ColorRGB& color2)
-{
-    return color.r == color2.r
-        && color.g == color2.g
-        && color.b == color2.b;
-}
-
-bool operator!=(const ColorRGB& color, const ColorRGB& color2)
-{
-    return !(color == color2);
-}
-
-ColorRGB8bit::ColorRGB8bit(uint8 r_, uint8 g_, uint8 b_)
-    : r(r_), g(g_), b(b_)
-{
-}
-
-ColorRGB8bit::ColorRGB8bit(const ColorRGB& color)
-    : r(uint8(clampColor(color.r))),
-      g(uint8(clampColor(color.g))),
-      b(uint8(clampColor(color.b)))
-{
-}
-
-ColorRGB8bit::ColorRGB8bit()
-    : r(0), g(0), b(0)
-{
-}
-
 Shader::Shader() : program(0) {}
 
 Shader::~Shader()
@@ -515,6 +483,13 @@ bool Shader::load(const std::string& vertexFile, const std::string& fragmentFile
 
     if(!loadFile(vertexSource, vertexFile) || !loadFile(fragmentSource, fragmentFile))
         return false;
+
+    return loadSource(vertexSource, fragmentSource);
+}
+
+bool Shader::loadSource(const std::string& vertexSource, const std::string& fragmentSource)
+{
+    destroy();
 
     program = createProgram(vertexSource, fragmentSource);
     return program != 0;
@@ -1193,8 +1168,8 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
 
     int outputChannels = convert_to_rgba32 ? 4 : channels;
 
-    image_width = unsigned long(w);
-    image_height = unsigned long(h);
+    image_width = static_cast<unsigned long>(w);
+    image_height = static_cast<unsigned long>(h);
 
     size_t outputSize = size_t(w) * size_t(h) * size_t(outputChannels);
     out_image.assign(data, data + outputSize);
@@ -1319,6 +1294,7 @@ inputDone:
 
     if(clear)
         clearScreen(RGB_Black);
+}
 
 // Raycaster compatibility Code for the backend of zvwolf
 
@@ -1349,8 +1325,8 @@ int loadImage(std::vector<uint32>& out, unsigned long& w, unsigned long& h, cons
     if(!data)
         return 1;
 
-    w = unsigned long(imageWidth);
-    h = unsigned long(imageHeight);
+    w = static_cast<unsigned long>(imageWidth);
+    h = static_cast<unsigned long>(imageHeight);
 
     size_t count = size_t(imageWidth) * size_t(imageHeight);
     out.resize(count);
