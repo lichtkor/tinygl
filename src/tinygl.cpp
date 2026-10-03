@@ -1,7 +1,7 @@
-#include "glad.h"
+#include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include "tinygl.h"
+#include <stb_image.h>
+#include <tinygl/tinygl.h>
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
