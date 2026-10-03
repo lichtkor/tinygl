@@ -1,7 +1,7 @@
-#include <glad/glad.h>
+#include "glad.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <tinygl/tinygl.h>
+#include "stb_image.h"
+#include "tinygl.h"
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
@@ -583,13 +583,13 @@ void setWindowCallback(GLFWwindow* target)
     glfwSetKeyCallback(target, keyCallback);
 }
 
-void createWindow(int renderWidth, int renderHeight, std::string& title, GLFWmonitor* monitor, bool fullscreen)
+void createWindow(int renderWidth, int renderHeight, std::string& title, GLFWmonitor* monitor, bool fullscreen, int internalWidth, int internalHeight)
 {
     if(window)
         return;
 
-    width = renderWidth;
-    height = renderHeight;
+    width = internalWidth > 0 ? internalWidth : renderWidth;
+    height = internalHeight > 0 ? internalHeight : renderHeight;
 
     if(!glfwInit())
     {
@@ -1365,5 +1365,74 @@ int loadImage(std::vector<ColorRGB>& out, unsigned long& w, unsigned long& h, co
 int decodePNG(std::vector<unsigned char>& out_image_32bit, unsigned long& image_width, unsigned long& image_height, const std::vector<unsigned char>& in_png)
 {
     return decodePNG(out_image_32bit, image_width, image_height, in_png.data(), in_png.size(), true);
+}
+
+// Raycaster functions
+
+void screen(int width, int height, bool fullscreen, const std::string& text, int renderWidth, int renderHeight)
+{
+    std::string title = text;
+    createWindow(width, height, title, nullptr, fullscreen, renderWidth, renderHeight);
+}
+
+bool done(bool quit_if_esc, bool delay)
+{
+    if(delay)
+        sleep(5.0);
+
+    glfwPollEvents();
+
+    if(!window || glfwWindowShouldClose(window))
+        return true;
+
+    if(quit_if_esc && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        return true;
+
+    return false;
+}
+
+void redraw()
+{
+    render();
+}
+
+void readKeys()
+{
+    glfwPollEvents();
+}
+
+void toggleFullscreen(bool fullscreen, int windowedWidth, int windowedHeight)
+{
+    if(!window || fullscreen == isFullscreen)
+        return;
+
+    if(fullscreen)
+    {
+        glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        if(!monitor)
+            return;
+
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        if(!mode)
+            return;
+
+        glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+        windowWidth = mode->width;
+        windowHeight = mode->height;
+        isFullscreen = true;
+    }
+    else
+    {
+        glfwSetWindowMonitor(window, nullptr, windowedPosX, windowedPosY, windowedWidth, windowedHeight, GLFW_DONT_CARE);
+
+        windowWidth = windowedWidth;
+        windowHeight = windowedHeight;
+        isFullscreen = false;
+    }
+
+    glViewport(0, 0, windowWidth, windowHeight);
 }
 }

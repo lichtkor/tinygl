@@ -243,6 +243,14 @@ T getInput(const std::string& message = "", bool clear = false, int x = 0, int y
     return strtoval<T>(text);
 }
 
+// Raycaster functions
+
+void screen(int width = 640, int height = 400, bool fullscreen = false, const std::string& text = " ", int renderWidth = 0, int renderHeight = 0);
+bool done(bool quit_if_esc = true, bool delay = true);
+void redraw();
+void readKeys();
+void toggleFullscreen(bool fullscreen, int windowedWidth, int windowedHeight);
+
 }
 
 #endif
